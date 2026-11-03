@@ -3,7 +3,7 @@ import pytest
 from src.cart import ShoppingCart
 from src.product import Product
 
-
+#Добавляем комментарий для теста кеша
 @pytest.fixture
 def phone():
     return Product("prod_102", "Смартфон", 500, 10)
