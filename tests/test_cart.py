@@ -129,3 +129,71 @@ def test_items_returns_copy(cart, phone):
     cart.add(phone, 1)
     cart.items["prod_102"] = 999
     assert cart.items == {"prod_102": 1}
+
+
+def test_promo_default_is_none(cart):
+    assert cart.promo is None
+
+
+def test_subtotal_ignores_promo(cart, phone):
+    cart.add(phone, 2)
+    cart.apply_promo("SALE10")
+    assert cart.subtotal() == 1000
+
+
+def test_apply_promo_discounts_total(cart, phone):
+    cart.add(phone, 2)
+    cart.apply_promo("SALE10")
+    assert cart.promo == "SALE10"
+    assert cart.total() == 900
+
+
+def test_promo_is_case_and_space_insensitive(cart, phone):
+    cart.add(phone, 2)
+    cart.apply_promo("  sale20 ")
+    assert cart.promo == "SALE20"
+    assert cart.total() == 800
+
+
+def test_promo_applies_to_items_added_later(cart, phone, case):
+    cart.apply_promo("HALF")
+    cart.add(phone, 2)
+    cart.add(case, 5)
+    assert cart.total() == 550
+
+
+def test_new_promo_replaces_old(cart, phone):
+    cart.add(phone, 2)
+    cart.apply_promo("SALE10")
+    cart.apply_promo("SALE20")
+    assert cart.total() == 800
+
+
+def test_remove_promo(cart, phone):
+    cart.add(phone, 2)
+    cart.apply_promo("SALE10")
+    cart.remove_promo()
+    assert cart.promo is None
+    assert cart.total() == 1000
+
+
+def test_promo_on_empty_cart(cart):
+    cart.apply_promo("SALE10")
+    assert cart.total() == 0
+
+
+def test_total_is_rounded_to_cents(cart):
+    cart.add(Product("prod_1", "Книга", 19.99, 5), 1)
+    cart.apply_promo("SALE10")
+    assert cart.total() == 17.99
+
+
+@pytest.mark.parametrize("bad", ["UNKNOWN", "", "   ", "SALE", None, 10])
+def test_apply_invalid_promo(cart, phone, bad):
+    cart.add(phone, 2)
+    cart.apply_promo("SALE10")
+    with pytest.raises(ValueError):
+        cart.apply_promo(bad)
+    # неудачная попытка не сбрасывает прежний промокод
+    assert cart.promo == "SALE10"
+    assert cart.total() == 900
