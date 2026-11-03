@@ -69,3 +69,63 @@ def test_add_invalid_quantity(cart, phone, bad):
     with pytest.raises(ValueError):
         cart.add(phone, bad)
     assert cart.items == {}
+
+
+def test_remove_whole_product_without_quantity(cart, phone):
+    cart.add(phone, 4)
+    cart.remove("prod_102")
+    assert cart.items == {}
+
+
+def test_remove_partially(cart, phone):
+    cart.add(phone, 5)
+    cart.remove("prod_102", 2)
+    assert cart.items == {"prod_102": 3}
+
+
+def test_remove_exact_quantity_removes_product(cart, phone):
+    cart.add(phone, 3)
+    cart.remove("prod_102", 3)
+    assert cart.items == {}
+
+
+def test_remove_more_than_in_cart_removes_product(cart, phone):
+    cart.add(phone, 3)
+    cart.remove("prod_102", 100)
+    assert cart.items == {}
+
+
+def test_remove_missing_product(cart):
+    with pytest.raises(KeyError):
+        cart.remove("unknown")
+
+
+@pytest.mark.parametrize("bad", [0, -2, 1.5, "1", True])
+def test_remove_invalid_quantity(cart, phone, bad):
+    cart.add(phone, 3)
+    with pytest.raises(ValueError):
+        cart.remove("prod_102", bad)
+    assert cart.items == {"prod_102": 3}
+
+
+def test_total_empty_cart(cart):
+    assert cart.total() == 0
+
+
+def test_total_several_products(cart, phone, case):
+    cart.add(phone, 2)  # 1000
+    cart.add(case, 3)  # 60
+    assert cart.total() == 1060
+
+
+def test_total_after_remove(cart, phone, case):
+    cart.add(phone, 2)
+    cart.add(case, 3)
+    cart.remove("prod_103")
+    assert cart.total() == 1000
+
+
+def test_items_returns_copy(cart, phone):
+    cart.add(phone, 1)
+    cart.items["prod_102"] = 999
+    assert cart.items == {"prod_102": 1}
