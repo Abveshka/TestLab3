@@ -76,7 +76,7 @@ class ShoppingCart:
         if self._promo is None:
             return subtotal
         discount = PROMO_CODES[self._promo]
-        return round(4)
+        return round(subtotal * (100 - discount) / 100, 2)
 
     def _delete(self, product_id: str) -> None:
         del self._items[product_id]
