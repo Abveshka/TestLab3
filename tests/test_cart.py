@@ -3,6 +3,7 @@ import pytest
 from src.cart import ShoppingCart
 from src.product import Product
 
+
 @pytest.fixture
 def phone():
     return Product("prod_102", "Смартфон", 500, 10)
@@ -18,7 +19,6 @@ def cart():
     return ShoppingCart()
 
 
-
 def test_product_created():
     p = Product("prod_1", "Книга", 15.5, 3)
     assert (p.id, p.name, p.price, p.stock) == ("prod_1", "Книга", 15.5, 3)
@@ -32,7 +32,6 @@ def test_product_negative_price():
 def test_product_negative_stock():
     with pytest.raises(ValueError):
         Product("prod_1", "Книга", 10, -1)
-
 
 
 def test_add_new_product(cart, phone):
@@ -69,7 +68,6 @@ def test_add_invalid_quantity(cart, phone, bad):
     with pytest.raises(ValueError):
         cart.add(phone, bad)
     assert cart.items == {}
-
 
 
 def test_remove_whole_product_without_quantity(cart, phone):
@@ -109,14 +107,13 @@ def test_remove_invalid_quantity(cart, phone, bad):
     assert cart.items == {"prod_102": 3}
 
 
-
 def test_total_empty_cart(cart):
     assert cart.total() == 0
 
 
 def test_total_several_products(cart, phone, case):
-    cart.add(phone, 2)   # 1000
-    cart.add(case, 3)    # 60
+    cart.add(phone, 2)  # 1000
+    cart.add(case, 3)  # 60
     assert cart.total() == 1060
 
 
@@ -125,7 +122,6 @@ def test_total_after_remove(cart, phone, case):
     cart.add(case, 3)
     cart.remove("prod_103")
     assert cart.total() == 1000
-
 
 
 def test_items_returns_copy(cart, phone):
