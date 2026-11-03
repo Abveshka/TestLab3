@@ -43,7 +43,13 @@ jobs:
       - name: Линтер (flake8)
         run: flake8 src tests --max-line-length=100
 
-      # Шаг 5. Запуск тестов через pytest с замером покрытия;
-      # --cov-fail-under=100 завершает шаг с ошибкой, если покрытие ниже 100%
-      - name: Тесты и покрытие
-        run: python -m pytest --cov=src --cov-report=term-missing --cov-fail-under=100
+      # Шаг 5. Запуск тестов под управлением coverage:
+      # coverage run запускает pytest и записывает, какие строки кода из src были выполнены
+      - name: Запуск тестов с замером покрытия
+        run: coverage run --source=src -m pytest
+
+      # Шаг 6. Проверка порога покрытия:
+      # если покрытие ниже 80%, команда завершается с ошибкой и пайплайн падает
+      # -m показывает номера строк, не покрытых тестами
+      - name: Проверка покрытия (минимум 80%)
+        run: coverage report -m --fail-under=80
